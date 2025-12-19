@@ -208,68 +208,7 @@ export default function Settings() {
       </Card>
 
       {/* Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferences</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-medium text-foreground">Currency</p>
-                <p className="text-sm text-muted-foreground">
-                  Choose your preferred currency
-                </p>
-              </div>
-              <select
-                className="border border-input rounded-lg px-3 py-2 bg-background"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value as Currency)}
-                disabled={updateProfileMutation.isPending}
-              >
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-              </select>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-medium text-foreground">Date Format</p>
-                <p className="text-sm text-muted-foreground">
-                  Choose your preferred date format
-                </p>
-              </div>
-              <select
-                className="border border-input rounded-lg px-3 py-2 bg-background"
-                value={dateFormat}
-                onChange={(e) => setDateFormat(e.target.value as DateFormat)}
-                disabled={updateProfileMutation.isPending}
-              >
-                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-              </select>
-            </div>
-            <div>
-              <Button
-                type="button"
-                className="bg-gradient-primary mt-2"
-                onClick={() =>
-                  handleSaveProfile(
-                    // fake event so we can reuse handler
-                    { preventDefault: () => {} } as React.FormEvent
-                  )
-                }
-                disabled={updateProfileMutation.isPending}
-              >
-                {updateProfileMutation.isPending
-                  ? "Saving..."
-                  : "Save Preferences"}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      
     </div>
   );
 }

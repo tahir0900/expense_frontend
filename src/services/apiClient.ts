@@ -2,7 +2,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE_URL = "https://expense-backend-1lrk.onrender.com/api/";
+const API_BASE_URL = "http://127.0.0.1:8000/api/";
 
 export const TOKEN_COOKIE_KEY = "auth_token";
 
