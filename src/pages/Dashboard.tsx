@@ -237,63 +237,73 @@ export default function Dashboard() {
           <CardTitle>Recent Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }, (_, i) => ({
-                id: `transaction-skeleton-${i}`,
-              })).map((item) => (
-                <Skeleton key={item.id} className="h-14 w-full" />
-              ))}
-            </div>
-          ) : recentTransactions.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              No recent transactions yet.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {recentTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`p-2 rounded-lg ${
+          {(() => {
+            if (isLoading) {
+              return (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }, (_, i) => ({
+                    id: `transaction-skeleton-${i}`,
+                  })).map((item) => (
+                    <Skeleton key={item.id} className="h-14 w-full" />
+                  ))}
+                </div>
+              );
+            }
+
+            if (recentTransactions.length === 0) {
+              return (
+                <p className="text-muted-foreground text-sm">
+                  No recent transactions yet.
+                </p>
+              );
+            }
+
+            return (
+              <div className="space-y-4">
+                {recentTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`p-2 rounded-lg ${
+                          transaction.type === "income"
+                            ? "bg-success/10"
+                            : "bg-destructive/10"
+                        }`}
+                      >
+                        {transaction.type === "income" ? (
+                          <ArrowUpRight className="h-4 w-4 text-success" />
+                        ) : (
+                          <ArrowDownRight className="h-4 w-4 text-destructive" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {transaction.description}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {transaction.category_name || "Uncategorized"} •{" "}
+                          {transaction.date}
+                        </p>
+                      </div>
+                    </div>
+                    <p
+                      className={`font-semibold ${
                         transaction.type === "income"
-                          ? "bg-success/10"
-                          : "bg-destructive/10"
+                          ? "text-success"
+                          : "text-destructive"
                       }`}
                     >
-                      {transaction.type === "income" ? (
-                        <ArrowUpRight className="h-4 w-4 text-success" />
-                      ) : (
-                        <ArrowDownRight className="h-4 w-4 text-destructive" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {transaction.description}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.category_name || "Uncategorized"} •{" "}
-                        {transaction.date}
-                      </p>
-                    </div>
+                      {transaction.type === "income" ? "+" : "-"}£
+                      {Math.abs(transaction.amount).toFixed(2)}
+                    </p>
                   </div>
-                  <p
-                    className={`font-semibold ${
-                      transaction.type === "income"
-                        ? "text-success"
-                        : "text-destructive"
-                    }`}
-                  >
-                    {transaction.type === "income" ? "+" : "-"}£
-                    {Math.abs(transaction.amount).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
     </div>
