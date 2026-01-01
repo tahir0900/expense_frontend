@@ -137,8 +137,10 @@ export default function Dashboard() {
       {/* Summary cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isLoading
-          ? Array.from({ length: 3 }).map((_, idx) => (
-              <Card key={`loading-summary-${idx}`} className="p-4">
+          ? Array.from({ length: 3 }, (_, i) => ({
+              id: `summary-skeleton-${i}`,
+            })).map((item) => (
+              <Card key={item.id} className="p-4">
                 {/* If you don't have Skeleton, just put "Loading..." */}
                 <Skeleton className="h-6 w-24 mb-2" />
                 <Skeleton className="h-8 w-32 mb-2" />
@@ -237,11 +239,10 @@ export default function Dashboard() {
         <CardContent>
           {isLoading ? (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton
-                  key={`loading-transaction-${i}`}
-                  className="h-14 w-full"
-                />
+              {Array.from({ length: 3 }, (_, i) => ({
+                id: `transaction-skeleton-${i}`,
+              })).map((item) => (
+                <Skeleton key={item.id} className="h-14 w-full" />
               ))}
             </div>
           ) : recentTransactions.length === 0 ? (
