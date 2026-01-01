@@ -68,9 +68,10 @@ export default function Dashboard() {
     // Handle formats like "Jan 2024", "January 2024", or just "Jan"
     const parts = monthStr.trim().split(/\s+/);
     const monthName = parts[0];
-const year = parts[1]
+    const year = parts[1]
       ? Number.parseInt(parts[1])
-      : new Date().getFullYear();    const monthNum = monthOrder[monthName] || 0;
+      : new Date().getFullYear();
+    const monthNum = monthOrder[monthName] || 0;
     return { year, month: monthNum, original: monthStr };
   };
 
@@ -137,15 +138,15 @@ const year = parts[1]
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isLoading
           ? Array.from({ length: 3 }).map((_, idx) => (
-              <Card key={idx} className="p-4">
+              <Card key={`loading-summary-${idx}`} className="p-4">
                 {/* If you don't have Skeleton, just put "Loading..." */}
                 <Skeleton className="h-6 w-24 mb-2" />
                 <Skeleton className="h-8 w-32 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </Card>
             ))
-          : summaryCards.map((data, index) => (
-              <SummaryCard key={index} {...data} />
+          : summaryCards.map((card) => (
+              <SummaryCard key={card.title} {...card} />
             ))}
       </div>
 
@@ -237,7 +238,10 @@ const year = parts[1]
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 w-full" />
+                <Skeleton
+                  key={`loading-transaction-${i}`}
+                  className="h-14 w-full"
+                />
               ))}
             </div>
           ) : recentTransactions.length === 0 ? (

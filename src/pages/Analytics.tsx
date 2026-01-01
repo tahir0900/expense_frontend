@@ -60,9 +60,10 @@ export default function Analytics() {
     // Handle formats like "Jan 2024", "January 2024", or just "Jan"
     const parts = monthStr.trim().split(/\s+/);
     const monthName = parts[0];
-const year = parts[1]
+    const year = parts[1]
       ? Number.parseInt(parts[1])
-      : new Date().getFullYear();    const monthNum = monthOrder[monthName] || 0;
+      : new Date().getFullYear();
+    const monthNum = monthOrder[monthName] || 0;
     return { year, month: monthNum, original: monthStr };
   };
 
@@ -148,39 +149,49 @@ const year = parts[1]
             <CardTitle>Spending Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Loading chart...
-              </div>
-            ) : trendData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Not enough data yet.
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trendData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-border"
-                  />
-                  <XAxis dataKey="month" className="text-muted-foreground" />
-                  <YAxis className="text-muted-foreground" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="amount"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+            {(() => {
+              if (isLoading) {
+                return (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                    Loading chart...
+                  </div>
+                );
+              }
+
+              if (trendData.length === 0) {
+                return (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                    Not enough data yet.
+                  </div>
+                );
+              }
+
+              return (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={trendData}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-border"
+                    />
+                    <XAxis dataKey="month" className="text-muted-foreground" />
+                    <YAxis className="text-muted-foreground" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={3}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
