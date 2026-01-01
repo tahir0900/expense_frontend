@@ -275,10 +275,8 @@ export default function Dashboard() {
                         {transaction.description}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {/* backend gives category_name */}
-                        {(transaction as any).category_name ||
-                          "Uncategorized"}{" "}
-                        • {transaction.date}
+                        {transaction.category_name || "Uncategorized"} •{" "}
+                        {transaction.date}
                       </p>
                     </div>
                   </div>
