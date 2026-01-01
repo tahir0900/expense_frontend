@@ -38,6 +38,41 @@ export default function Dashboard() {
     toast.error("Failed to load dashboard data");
   }
 
+  const monthOrder: Record<string, number> = {
+    January: 1,
+    February: 2,
+    March: 3,
+    April: 4,
+    May: 5,
+    June: 6,
+    July: 7,
+    August: 8,
+    September: 9,
+    October: 10,
+    November: 11,
+    December: 12,
+    Jan: 1,
+    Feb: 2,
+    Mar: 3,
+    Apr: 4,
+    Jun: 6,
+    Jul: 7,
+    Aug: 8,
+    Sep: 9,
+    Oct: 10,
+    Nov: 11,
+    Dec: 12,
+  };
+
+  const parseMonthYear = (monthStr: string) => {
+    // Handle formats like "Jan 2024", "January 2024", or just "Jan"
+    const parts = monthStr.trim().split(/\s+/);
+    const monthName = parts[0];
+    const year = parts[1] ? parseInt(parts[1]) : new Date().getFullYear();
+    const monthNum = monthOrder[monthName] || 0;
+    return { year, month: monthNum, original: monthStr };
+  };
+
   const summaryCards = useMemo(() => {
     const totalIncome = data?.summary.total_income ?? 0;
     const totalExpenses = data?.summary.total_expenses ?? 0;
@@ -46,7 +81,7 @@ export default function Dashboard() {
     return [
       {
         title: "Total Income",
-        value: `$${totalIncome.toLocaleString()}`,
+        value: `£${totalIncome.toLocaleString()}`,
         icon: TrendingUp,
         // For now static trend text – you can compute real trend later if you add it to the API
         trend: "",
@@ -55,7 +90,7 @@ export default function Dashboard() {
       },
       {
         title: "Total Expenses",
-        value: `$${totalExpenses.toLocaleString()}`,
+        value: `£${totalExpenses.toLocaleString()}`,
         icon: TrendingDown,
         trend: "",
         trendUp: false,
@@ -63,7 +98,7 @@ export default function Dashboard() {
       },
       {
         title: "Balance",
-        value: `$${balance.toLocaleString()}`,
+        value: `£${balance.toLocaleString()}`,
         icon: Wallet,
         trend: "",
         trendUp: balance >= 0,
@@ -72,7 +107,19 @@ export default function Dashboard() {
     ];
   }, [data]);
 
-  const chartData = data?.chart ?? [];
+  const chartData = useMemo(() => {
+    const data_chart = data?.chart ?? [];
+    return [...data_chart].sort((a, b) => {
+      const parsedA = parseMonthYear(a.month);
+      const parsedB = parseMonthYear(b.month);
+
+      // Sort by year first, then by month
+      if (parsedA.year !== parsedB.year) {
+        return parsedA.year - parsedB.year;
+      }
+      return parsedA.month - parsedB.month;
+    });
+  }, [data]);
 
   const recentTransactions = data?.recent_transactions ?? [];
 
@@ -236,7 +283,7 @@ export default function Dashboard() {
                         : "text-destructive"
                     }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}$
+                    {transaction.type === "income" ? "+" : "-"}£
                     {Math.abs(transaction.amount).toFixed(2)}
                   </p>
                 </div>

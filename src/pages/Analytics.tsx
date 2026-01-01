@@ -1,4 +1,5 @@
 // src/pages/Analytics.tsx
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   PieChart,
@@ -29,8 +30,55 @@ export default function Analytics() {
     toast.error("Failed to load analytics data");
   }
 
+  const monthOrder: Record<string, number> = {
+    January: 1,
+    February: 2,
+    March: 3,
+    April: 4,
+    May: 5,
+    June: 6,
+    July: 7,
+    August: 8,
+    September: 9,
+    October: 10,
+    November: 11,
+    December: 12,
+    Jan: 1,
+    Feb: 2,
+    Mar: 3,
+    Apr: 4,
+    Jun: 6,
+    Jul: 7,
+    Aug: 8,
+    Sep: 9,
+    Oct: 10,
+    Nov: 11,
+    Dec: 12,
+  };
+
+  const parseMonthYear = (monthStr: string) => {
+    // Handle formats like "Jan 2024", "January 2024", or just "Jan"
+    const parts = monthStr.trim().split(/\s+/);
+    const monthName = parts[0];
+    const year = parts[1] ? parseInt(parts[1]) : new Date().getFullYear();
+    const monthNum = monthOrder[monthName] || 0;
+    return { year, month: monthNum, original: monthStr };
+  };
+
   const categoryData = data?.category_data ?? [];
-  const trendData = data?.trend_data ?? [];
+  const trendData = useMemo(() => {
+    const trend = data?.trend_data ?? [];
+    return [...trend].sort((a, b) => {
+      const parsedA = parseMonthYear(a.month);
+      const parsedB = parseMonthYear(b.month);
+
+      // Sort by year first, then by month
+      if (parsedA.year !== parsedB.year) {
+        return parsedA.year - parsedB.year;
+      }
+      return parsedA.month - parsedB.month;
+    });
+  }, [data]);
   const averageDailySpending = data?.average_daily_spending ?? 0;
   const topCategory = data?.top_category ?? "N/A";
   const topCategoryPercent = data?.top_category_percent ?? null;
@@ -143,7 +191,7 @@ export default function Analytics() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-foreground">
-              ${averageDailySpending.toFixed(2)}
+              £{averageDailySpending.toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               Based on last 30 days

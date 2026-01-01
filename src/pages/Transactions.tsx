@@ -489,7 +489,7 @@ export default function Transactions() {
                                 {template.name}
                               </h4>
                               <p className="text-sm text-muted-foreground">
-                                {template.description} • {template.category} • $
+                                {template.description} • {template.category} • £
                                 {template.amount}
                               </p>
                             </div>
@@ -589,7 +589,7 @@ export default function Transactions() {
                       : "text-destructive"
                   }`}
                 >
-                  {transaction.type === "income" ? "+" : ""}$
+                  {transaction.type === "income" ? "+" : ""}£
                   {Math.abs(transaction.amount).toFixed(2)}
                 </p>
               </div>
@@ -722,7 +722,7 @@ export default function Transactions() {
                         {template.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        ${template.amount} • {template.category}
+                        £{template.amount} • {template.category}
                       </p>
                     </div>
                     <div className="flex gap-1">

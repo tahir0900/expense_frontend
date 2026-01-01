@@ -328,7 +328,7 @@ export default function Categories() {
                               : "text-foreground"
                           }`}
                         >
-                          ${category.spent} / ${category.budget}
+                          £{category.spent} / £{category.budget}
                         </span>
                       </div>
                       <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
