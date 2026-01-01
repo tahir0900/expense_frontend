@@ -60,8 +60,9 @@ export default function Analytics() {
     // Handle formats like "Jan 2024", "January 2024", or just "Jan"
     const parts = monthStr.trim().split(/\s+/);
     const monthName = parts[0];
-    const year = parts[1] ? parseInt(parts[1]) : new Date().getFullYear();
-    const monthNum = monthOrder[monthName] || 0;
+const year = parts[1]
+      ? Number.parseInt(parts[1])
+      : new Date().getFullYear();    const monthNum = monthOrder[monthName] || 0;
     return { year, month: monthNum, original: monthStr };
   };
 
