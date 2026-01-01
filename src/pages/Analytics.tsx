@@ -225,6 +225,7 @@ export default function Analytics() {
               Of total income
             </p>
           </CardContent>
+          {/* this is the end of the card  */}
         </Card>
       </div>
     </div>
