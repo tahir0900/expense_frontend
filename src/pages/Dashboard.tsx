@@ -1,7 +1,16 @@
 // src/pages/Dashboard.tsx
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDashboard } from "@/services/dashboardService";
 import { toast } from "sonner";
@@ -16,6 +25,42 @@ const TOOLTIP_STYLE = {
   borderRadius: "8px",
 };
 
+const MONTH_ORDER: Record<string, number> = {
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12,
+  Jan: 1,
+  Feb: 2,
+  Mar: 3,
+  Apr: 4,
+  Jun: 6,
+  Jul: 7,
+  Aug: 8,
+  Sep: 9,
+  Oct: 10,
+  Nov: 11,
+  Dec: 12,
+};
+
+/* ===================== helpers ===================== */
+
+function parseMonthYear(monthStr: string) {
+  const [monthName, yearStr] = monthStr.trim().split(/\s+/);
+  return {
+    year: Number(yearStr) || new Date().getFullYear(),
+    month: MONTH_ORDER[monthName] ?? 0,
+  };
+}
+
 /* ===================== components ===================== */
 
 type EmptyStateProps = Readonly<{
@@ -25,6 +70,18 @@ type EmptyStateProps = Readonly<{
 function EmptyState({ text }: EmptyStateProps) {
   return (
     <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+      {text}
+    </div>
+  );
+}
+
+type EmptyChartStateProps = Readonly<{
+  text: string;
+}>;
+
+function EmptyChartState({ text }: EmptyChartStateProps) {
+  return (
+    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
       {text}
     </div>
   );
@@ -49,6 +106,15 @@ export default function Dashboard() {
   const income = data?.summary.total_income ?? 0;
   const expenses = data?.summary.total_expenses ?? 0;
   const transactions = data?.recent_transactions ?? [];
+
+  const chartData = useMemo(() => {
+    const chart = data?.chart ?? [];
+    return [...chart].sort((a, b) => {
+      const A = parseMonthYear(a.month);
+      const B = parseMonthYear(b.month);
+      return A.year !== B.year ? A.year - B.year : A.month - B.month;
+    });
+  }, [data]);
 
   /* ===================== render helpers ===================== */
 
@@ -88,6 +154,37 @@ export default function Dashboard() {
           </li>
         ))}
       </ul>
+    );
+  };
+
+  const renderChartData = () => {
+    if (isLoading) return <EmptyChartState text="Loading chart..." />;
+    if (!chartData.length)
+      return <EmptyChartState text="Not enough data yet." />;
+
+    return (
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
+          <Line
+            type="monotone"
+            dataKey="income"
+            stroke="#10b981"
+            strokeWidth={2}
+            name="Income"
+          />
+          <Line
+            type="monotone"
+            dataKey="expenses"
+            stroke="#ec4899"
+            strokeWidth={2}
+            name="Expenses"
+          />
+        </LineChart>
+      </ResponsiveContainer>
     );
   };
 
@@ -137,6 +234,14 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Income vs Expenses Trend</CardTitle>
+        </CardHeader>
+        <CardContent>{renderChartData()}</CardContent>
+      </Card>
 
       {/* recent transactions */}
       <Card>
