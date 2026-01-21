@@ -65,7 +65,12 @@ function parseMonthYear(monthStr: string) {
 
 type TxType = "income" | "expense";
 
-function TransactionIcon({ type }: { type: TxType }) {
+/* ✅ Readonly props (Sonar-safe) */
+type TransactionIconProps = Readonly<{
+  type: TxType;
+}>;
+
+function TransactionIcon({ type }: TransactionIconProps) {
   const isIncome = type === "income";
   const wrapperClass = isIncome ? "bg-success/10" : "bg-destructive/10";
   const Icon = isIncome ? ArrowUpRight : ArrowDownRight;
