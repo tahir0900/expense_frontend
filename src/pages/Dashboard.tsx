@@ -112,7 +112,11 @@ export default function Dashboard() {
     return [...chart].sort((a, b) => {
       const A = parseMonthYear(a.month);
       const B = parseMonthYear(b.month);
-      return A.year !== B.year ? A.year - B.year : A.month - B.month;
+      if (A.year === B.year) {
+        return A.month - B.month;
+      }
+
+      return A.year - B.year;
     });
   }, [data]);
 
@@ -206,9 +210,7 @@ export default function Dashboard() {
             <CardTitle>Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">
-              £{balance.toFixed(2)}
-            </p>
+            <p className="text-3xl font-bold">£{balance.toFixed(2)}</p>
           </CardContent>
         </Card>
 

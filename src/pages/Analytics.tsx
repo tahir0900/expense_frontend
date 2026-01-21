@@ -99,7 +99,11 @@ export default function Analytics() {
     return [...trend].sort((a, b) => {
       const A = parseMonthYear(a.month);
       const B = parseMonthYear(b.month);
-      return A.year !== B.year ? A.year - B.year : A.month - B.month;
+      if (A.year === B.year) {
+        return A.month - B.month;
+      }
+
+      return A.year - B.year;
     });
   }, [data]);
 
@@ -228,9 +232,7 @@ export default function Analytics() {
             <CardTitle>Savings Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-success">
-              {savingsRateText}
-            </p>
+            <p className="text-3xl font-bold text-success">{savingsRateText}</p>
           </CardContent>
         </Card>
       </div>
