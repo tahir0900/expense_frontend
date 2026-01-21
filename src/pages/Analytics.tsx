@@ -175,9 +175,6 @@ export default function Analytics() {
       ? `${topCategoryPercent.toFixed(1)}% of total expenses`
       : "No category data yet";
 
-  // const savingsRateText =
-  //   savingsRate !== null ? `${savingsRate.toFixed(1)}%` : "--";
-
     const savingsRateText =
   savingsRate === null ? "--" : `${savingsRate.toFixed(1)}%`;
 
