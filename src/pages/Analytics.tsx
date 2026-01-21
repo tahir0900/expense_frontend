@@ -36,7 +36,6 @@ const MONTH_ORDER: Record<string, number> = {
   Feb: 2,
   Mar: 3,
   Apr: 4,
-  Mayy: 5, // ignore if you don't want; remove if not needed
   Jun: 6,
   Jul: 7,
   Aug: 8,
@@ -53,10 +52,16 @@ function parseMonthYear(monthStr: string) {
     ? Number.parseInt(parts[1], 10)
     : new Date().getFullYear();
   const monthNum = MONTH_ORDER[monthName] ?? 0;
+
   return { year, month: monthNum, original: monthStr };
 }
 
-function EmptyChartState({ text }: { text: string }) {
+/* ✅ Sonar-safe readonly props */
+type EmptyChartStateProps = Readonly<{
+  text: string;
+}>;
+
+function EmptyChartState({ text }: EmptyChartStateProps) {
   return (
     <div className="h-[300px] flex items-center justify-center text-muted-foreground">
       {text}
@@ -70,10 +75,8 @@ export default function Analytics() {
     queryFn: fetchAnalyticsOverview,
   });
 
-  // ✅ move side-effect out of render
   useEffect(() => {
     if (isError) {
-      // eslint-disable-next-line no-console
       console.error(error);
       toast.error("Failed to load analytics data");
     }
@@ -87,7 +90,10 @@ export default function Analytics() {
       const parsedA = parseMonthYear(a.month);
       const parsedB = parseMonthYear(b.month);
 
-      if (parsedA.year !== parsedB.year) return parsedA.year - parsedB.year;
+      if (parsedA.year !== parsedB.year) {
+        return parsedA.year - parsedB.year;
+      }
+
       return parsedA.month - parsedB.month;
     });
   }, [data]);
@@ -114,7 +120,6 @@ export default function Analytics() {
               `${name} ${(percent * 100).toFixed(0)}%`
             }
             outerRadius={100}
-            fill="#8884d8"
             dataKey="value"
           >
             {categoryData.map((entry, idx) => (
@@ -203,7 +208,9 @@ export default function Analytics() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="bg-gradient-card">
           <CardHeader>
-            <CardTitle className="text-lg">Average Daily Spending</CardTitle>
+            <CardTitle className="text-lg">
+              Average Daily Spending
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-foreground">
@@ -232,12 +239,13 @@ export default function Analytics() {
             <CardTitle className="text-lg">Savings Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-success">{savingsRateText}</p>
+            <p className="text-3xl font-bold text-success">
+              {savingsRateText}
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
               Of total income
             </p>
           </CardContent>
-          {/* this is the end of the card  */}
         </Card>
       </div>
     </div>
