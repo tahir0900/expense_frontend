@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDashboardOverview } from "@/services/dashboardService";
+import { fetchDashboard } from "@/services/dashboardService";
 import { toast } from "sonner";
 
 /* ===================== constants ===================== */
@@ -35,7 +35,7 @@ function EmptyState({ text }: EmptyStateProps) {
 export default function Dashboard() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["dashboard-overview"],
-    queryFn: fetchDashboardOverview,
+    queryFn: fetchDashboard,
   });
 
   useEffect(() => {
@@ -45,9 +45,9 @@ export default function Dashboard() {
     }
   }, [isError, error]);
 
-  const balance = data?.balance ?? 0;
-  const income = data?.income ?? 0;
-  const expenses = data?.expenses ?? 0;
+  const balance = data?.summary.balance ?? 0;
+  const income = data?.summary.total_income ?? 0;
+  const expenses = data?.summary.total_expenses ?? 0;
   const transactions = data?.recent_transactions ?? [];
 
   /* ===================== render helpers ===================== */
