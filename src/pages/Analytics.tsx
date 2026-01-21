@@ -17,7 +17,15 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAnalyticsOverview } from "@/services/analyticsService";
 import { toast } from "sonner";
 
+/* ===================== constants ===================== */
+
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899"];
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "hsl(var(--card))",
+  border: "1px solid hsl(var(--border))",
+  borderRadius: "8px",
+};
 
 const MONTH_ORDER: Record<string, number> = {
   January: 1,
@@ -45,18 +53,18 @@ const MONTH_ORDER: Record<string, number> = {
   Dec: 12,
 };
 
-function parseMonthYear(monthStr: string) {
-  const parts = monthStr.trim().split(/\s+/);
-  const monthName = parts[0];
-  const year = parts[1]
-    ? Number.parseInt(parts[1], 10)
-    : new Date().getFullYear();
-  const monthNum = MONTH_ORDER[monthName] ?? 0;
+/* ===================== helpers ===================== */
 
-  return { year, month: monthNum, original: monthStr };
+function parseMonthYear(monthStr: string) {
+  const [monthName, yearStr] = monthStr.trim().split(/\s+/);
+  return {
+    year: Number(yearStr) || new Date().getFullYear(),
+    month: MONTH_ORDER[monthName] ?? 0,
+  };
 }
 
-/* ✅ Sonar-safe readonly props */
+/* ===================== components ===================== */
+
 type EmptyChartStateProps = Readonly<{
   text: string;
 }>;
@@ -68,6 +76,8 @@ function EmptyChartState({ text }: EmptyChartStateProps) {
     </div>
   );
 }
+
+/* ===================== page ===================== */
 
 export default function Analytics() {
   const { data, isLoading, isError, error } = useQuery({
@@ -87,14 +97,9 @@ export default function Analytics() {
   const trendData = useMemo(() => {
     const trend = data?.trend_data ?? [];
     return [...trend].sort((a, b) => {
-      const parsedA = parseMonthYear(a.month);
-      const parsedB = parseMonthYear(b.month);
-
-      if (parsedA.year !== parsedB.year) {
-        return parsedA.year - parsedB.year;
-      }
-
-      return parsedA.month - parsedB.month;
+      const A = parseMonthYear(a.month);
+      const B = parseMonthYear(b.month);
+      return A.year !== B.year ? A.year - B.year : A.month - B.month;
     });
   }, [data]);
 
@@ -103,9 +108,19 @@ export default function Analytics() {
   const topCategoryPercent = data?.top_category_percent ?? null;
   const savingsRate = data?.savings_rate ?? null;
 
+  const savingsRateText =
+    savingsRate == null ? "--" : `${savingsRate.toFixed(1)}%`;
+
+  const topCategoryText =
+    topCategory !== "N/A" && topCategoryPercent != null
+      ? `${topCategoryPercent.toFixed(1)}% of total expenses`
+      : "No category data yet";
+
+  /* ===================== render helpers ===================== */
+
   const renderCategoryChart = () => {
     if (isLoading) return <EmptyChartState text="Loading chart..." />;
-    if (categoryData.length === 0)
+    if (!categoryData.length)
       return <EmptyChartState text="Not enough data yet." />;
 
     return (
@@ -115,12 +130,11 @@ export default function Analytics() {
             data={categoryData}
             cx="50%"
             cy="50%"
-            labelLine={false}
+            outerRadius={100}
+            dataKey="value"
             label={({ name, percent }) =>
               `${name} ${(percent * 100).toFixed(0)}%`
             }
-            outerRadius={100}
-            dataKey="value"
           >
             {categoryData.map((entry, idx) => (
               <Cell
@@ -129,13 +143,7 @@ export default function Analytics() {
               />
             ))}
           </Pie>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-            }}
-          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
         </PieChart>
       </ResponsiveContainer>
     );
@@ -143,22 +151,16 @@ export default function Analytics() {
 
   const renderTrendChart = () => {
     if (isLoading) return <EmptyChartState text="Loading chart..." />;
-    if (trendData.length === 0)
+    if (!trendData.length)
       return <EmptyChartState text="Not enough data yet." />;
 
     return (
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={trendData}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-          <XAxis dataKey="month" className="text-muted-foreground" />
-          <YAxis className="text-muted-foreground" />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-            }}
-          />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Line
             type="monotone"
             dataKey="amount"
@@ -170,18 +172,12 @@ export default function Analytics() {
     );
   };
 
-  const topCategoryText =
-    topCategory !== "N/A" && topCategoryPercent !== null
-      ? `${topCategoryPercent.toFixed(1)}% of total expenses`
-      : "No category data yet";
-
-    const savingsRateText =
-  savingsRate === null ? "--" : `${savingsRate.toFixed(1)}%`;
+  /* ===================== JSX ===================== */
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
+        <h1 className="text-3xl font-bold">Analytics</h1>
         <p className="text-muted-foreground">
           Insights into your spending patterns
         </p>
@@ -208,42 +204,32 @@ export default function Analytics() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="bg-gradient-card">
           <CardHeader>
-            <CardTitle className="text-lg">
-              Average Daily Spending
-            </CardTitle>
+            <CardTitle>Average Daily Spending</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-foreground">
+            <p className="text-3xl font-bold">
               £{averageDailySpending.toFixed(2)}
             </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Based on last 30 days
-            </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-card">
           <CardHeader>
-            <CardTitle className="text-lg">Top Category</CardTitle>
+            <CardTitle>Top Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-foreground">{topCategory}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {topCategoryText}
-            </p>
+            <p className="text-3xl font-bold">{topCategory}</p>
+            <p className="text-sm text-muted-foreground">{topCategoryText}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-card">
           <CardHeader>
-            <CardTitle className="text-lg">Savings Rate</CardTitle>
+            <CardTitle>Savings Rate</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-success">
               {savingsRateText}
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Of total income
             </p>
           </CardContent>
         </Card>
